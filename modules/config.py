@@ -3,16 +3,16 @@ import streamlit as st
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-# Render AI model selection menu in the sidebar
+# 사이드바에 AI 모델 선택 메뉴 렌더링
 def render_model_selection():
     st.session_state.model_name = st.sidebar.selectbox(
-        "🧠 Select AI Model",  # Prompt for model selection
-        ["Gemini", "GPT-4", "GPT-3.5", "Custom-Bot"],  # Available models
-        index=0,  # Default selection
-        key="model_selection_key"  # Session state key
+        "🧠 AI 모델 선택",
+        ["Gemini", "GPT-4o", "GPT-3.5", "GPT-4.1 Nano"],
+        index=0,
+        key="model_selection_key"
     )
 
-# Initialize session state variables
+# 세션 상태 초기화
 def init_session_state():
     if "event_loop" not in st.session_state:
         loop = asyncio.new_event_loop()
@@ -25,20 +25,21 @@ def init_session_state():
     if "model_name" not in st.session_state:
         st.session_state.model_name = "Gemini"
 
-# Get AI model instance based on the selected model name
+# 선택된 모델명에 따라 AI 모델 인스턴스 반환
 def get_chat_model(name):
     if name == "Gemini":
         return ChatGoogleGenerativeAI(
             model="gemini-2.5-pro-exp-03-25",
             temperature=0.7,
+            streaming=True,
         )
     model_map = {
-        "GPT-4": "gpt-4o",
+        "GPT-4o": "gpt-4o",
         "GPT-3.5": "gpt-3.5-turbo",
-        "Custom-Bot": "gpt-4"
+        "GPT-4.1 Nano": "gpt-4.1-nano"
     }
-    return ChatOpenAI(model=model_map.get(name, "gpt-4"), temperature=0.7)
+    return ChatOpenAI(model=model_map.get(name, "gpt-4.1-nano"), temperature=0.7, streaming=True)
 
-# Retrieve the currently selected model name
+# 현재 선택된 모델명 반환
 def get_model_name():
     return st.session_state.get("model_name", "Gemini")
