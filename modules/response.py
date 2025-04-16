@@ -6,7 +6,6 @@ from modules.message import to_lc_messages
 def get_response(model, chat_history, user_message):
     messages = to_lc_messages(chat_history)
     messages.append(HumanMessage(content=user_message))
-    # LangChain 모델의 astream 지원 시 스트리밍
     if hasattr(model, 'astream'):
         async def stream():
             async for chunk in model.astream(messages):
@@ -15,13 +14,11 @@ def get_response(model, chat_history, user_message):
                 elif isinstance(chunk, str):
                     yield chunk
         return stream()
-    # 지원하지 않으면 전체 응답 반환
     async def once():
         response = await model.ainvoke(messages)
         yield response.content
     return once()
 
-# Streamlit에서 사용할 스트리밍 제너레이터
 def stream_response(model, chat_history, user_message):
     async def async_chunks():
         async for chunk in get_response(model, chat_history, user_message):

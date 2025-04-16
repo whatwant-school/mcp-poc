@@ -30,19 +30,16 @@ def display_chat_history():
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-# 채팅 이력 및 토큰 초기화
 def clear_chat_history():
     st.session_state.chat_history = []
     st.session_state.token_usage = 0
     st.rerun()
 
-# 사용자 입력 추가
 def add_user_input(prompt):
     st.session_state.chat_history.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-# 채팅 이력 토큰 계산
 def calculate_tokens(model_name, chat_history):
     buffer = get_buffer_string(to_lc_messages(chat_history))
     if model_name == "Gemini":
