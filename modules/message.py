@@ -2,7 +2,6 @@ import streamlit as st
 from langchain_core.messages import HumanMessage, AIMessage, get_buffer_string
 import tiktoken
 
-# GPT 모델 토큰 수 계산
 def count_gpt_tokens(text, model_name="gpt-4o"):
     try:
         encoding = tiktoken.encoding_for_model(model_name)
@@ -10,11 +9,9 @@ def count_gpt_tokens(text, model_name="gpt-4o"):
         encoding = tiktoken.encoding_for_model("gpt-4")
     return len(encoding.encode(text))
 
-# Gemini 모델 토큰 수 추정
 def estimate_gemini_tokens(text):
     return int(len(text) / 4)
 
-# 채팅 이력 -> LangChain 메시지 포맷 변환
 def to_lc_messages(chat_history):
     messages = []
     for msg in chat_history:
@@ -24,11 +21,15 @@ def to_lc_messages(chat_history):
             messages.append(AIMessage(content=msg["content"]))
     return messages
 
-# 채팅 이력 UI 표시
 def display_chat_history():
-    for msg in st.session_state.chat_history:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+    history = st.session_state.chat_history
+    for msg in history:
+        if msg["role"] == "user":
+            with st.chat_message("user"):
+                st.markdown(msg["content"])
+        elif msg["role"] == "assistant":
+            with st.chat_message("assistant"):
+                st.markdown(msg["content"])
 
 def clear_chat_history():
     st.session_state.chat_history = []

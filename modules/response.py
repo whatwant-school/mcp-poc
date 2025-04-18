@@ -1,8 +1,8 @@
 import asyncio
+import streamlit as st
 from langchain_core.messages import HumanMessage
 from modules.message import to_lc_messages
 
-# AI 모델의 스트리밍 응답 생성
 def get_response(model, chat_history, user_message):
     messages = to_lc_messages(chat_history)
     messages.append(HumanMessage(content=user_message))
@@ -24,9 +24,13 @@ def stream_response(model, chat_history, user_message):
         async for chunk in get_response(model, chat_history, user_message):
             yield chunk
     agen = async_chunks()
+    loop = getattr(st.session_state, "event_loop", None)
+    if loop is None or loop.is_closed():
+        loop = asyncio.new_event_loop()
+        st.session_state.event_loop = loop
     while True:
         try:
-            chunk = asyncio.get_event_loop().run_until_complete(agen.__anext__())
+            chunk = loop.run_until_complete(agen.__anext__())
             yield chunk
         except StopAsyncIteration:
             break
